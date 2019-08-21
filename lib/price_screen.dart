@@ -1,3 +1,4 @@
+import 'package:bitcoin_ticker/cryptoCurrencyTrackService.dart';
 import 'package:flutter/material.dart';
 import 'package:bitcoin_ticker/coin_data.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,7 +11,8 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String _selectedCurrency = 'USD';
-
+  CryptoCurrencyTrackService _crytoTrackerService = new CryptoCurrencyTrackService();
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,23 +25,10 @@ class _PriceScreenState extends State<PriceScreen> {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 BTC = ? USD',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+            child: new CryptoCard(
+              cryptoSymbol: 'BTC',
+              currencyType: _selectedCurrency,
+              lastValue: "100.0",
             ),
           ),
           Container(
@@ -54,6 +43,7 @@ class _PriceScreenState extends State<PriceScreen> {
     );
   }
 
+
   Widget _currencyPicker() {
     return Platform.isAndroid
         ? _buildAndroidCurrencyPicker()
@@ -63,7 +53,11 @@ class _PriceScreenState extends State<PriceScreen> {
   CupertinoPicker _buildIOSCurrencyPicker() {
     return CupertinoPicker(
         itemExtent: 30.0,
-        onSelectedItemChanged: (index) {},
+        onSelectedItemChanged: (index) {
+          setState(() {
+            _selectedCurrency = cryptoList[index].toString();
+          });
+        },
         children: currenciesList.map((s) => Text(s)).toList());
   }
 
@@ -80,4 +74,38 @@ class _PriceScreenState extends State<PriceScreen> {
       },
     );
   }
+}
+
+class CryptoCard extends StatelessWidget {
+  
+  final String cryptoSymbol;
+  final String currencyType;
+  final String lastValue;
+
+  const CryptoCard({
+    Key key, @required this.cryptoSymbol, @required this.currencyType, @required this.lastValue
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Colors.lightBlueAccent,
+      elevation: 5.0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
+        child: Text(
+          '1 $cryptoSymbol = $lastValue $currencyType',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 20.0,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
 }
