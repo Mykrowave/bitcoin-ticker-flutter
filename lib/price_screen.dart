@@ -11,8 +11,9 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String _selectedCurrency = 'USD';
-  CryptoCurrencyTrackService _crytoTrackerService = new CryptoCurrencyTrackService();
-  
+  CryptoCurrencyTrackService _cryptoTrackerService =
+      new CryptoCurrencyTrackService();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,13 +24,10 @@ class _PriceScreenState extends State<PriceScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: new CryptoCard(
-              cryptoSymbol: 'BTC',
-              currencyType: _selectedCurrency,
-              lastValue: "100.0",
-            ),
+          new CryptoCard(
+            cryptoSymbol: 'BTC',
+            currencyType: _selectedCurrency,
+            lastValue: "100.0",
           ),
           Container(
             height: 150.0,
@@ -43,6 +41,16 @@ class _PriceScreenState extends State<PriceScreen> {
     );
   }
 
+  Future<List<CryptoCard>> _buildTrackedCryptoCards() async {
+    return cryptoList.map((s) async {
+      double lastValue =
+          await _cryptoTrackerService.getCryptoLastPrice(s, _selectedCurrency);
+      return CryptoCard(
+          cryptoSymbol: s,
+          currencyType: _selectedCurrency,
+          lastValue: lastValue);
+    }).toList();
+  }
 
   Widget _currencyPicker() {
     return Platform.isAndroid
@@ -77,35 +85,39 @@ class _PriceScreenState extends State<PriceScreen> {
 }
 
 class CryptoCard extends StatelessWidget {
-  
   final String cryptoSymbol;
   final String currencyType;
   final String lastValue;
 
-  const CryptoCard({
-    Key key, @required this.cryptoSymbol, @required this.currencyType, @required this.lastValue
-  }) : super(key: key);
+  const CryptoCard(
+      {Key key,
+      @required this.cryptoSymbol,
+      @required this.currencyType,
+      @required this.lastValue})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.lightBlueAccent,
-      elevation: 5.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
-        child: Text(
-          '1 $cryptoSymbol = $lastValue $currencyType',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 20.0,
-            color: Colors.white,
+    return Padding(
+      padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
+      child: Card(
+        color: Colors.lightBlueAccent,
+        elevation: 5.0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
+          child: Text(
+            '1 $cryptoSymbol = $lastValue $currencyType',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 20.0,
+              color: Colors.white,
+            ),
           ),
         ),
       ),
     );
   }
-
 }
